@@ -257,19 +257,9 @@ HWC2::Error HWCLayer::SetLayerBuffer(buffer_handle_t buffer, int32_t acquire_fen
 }
 
 HWC2::Error HWCLayer::SetLayerSurfaceDamage(hwc_region_t damage) {
-  // Check if there is an update in SurfaceDamage rects
-  if (layer_->dirty_regions.size() != damage.numRects) {
-    needs_validate_ = true;
-  } else {
-    for (uint32_t j = 0; j < damage.numRects; j++) {
-      LayerRect damage_rect;
-      SetRect(damage.rects[j], &damage_rect);
-      if (damage_rect != layer_->dirty_regions.at(j)) {
-        needs_validate_ = true;
-        break;
-      }
-    }
-  }
+  // Surface damage changes don't affect composition strategy.
+  // Damage rects only inform the MDP which regions to update,
+  // not which pipes to use. Skip validate trigger.
 
   layer_->dirty_regions.clear();
   for (uint32_t i = 0; i < damage.numRects; i++) {
@@ -666,6 +656,12 @@ LayerBufferS3DFormat HWCLayer::GetS3DFormat(uint32_t s3d_format) {
 }
 
 DisplayError HWCLayer::SetMetaData(const private_handle_t *pvt_handle, Layer *layer) {
+  // Fast path: skip metadata queries for non-video UI layers.
+  // Only video buffers carry meaningful IGC/refresh/interlace/S3D metadata.
+  if (pvt_handle->buffer_type != BUFFER_TYPE_VIDEO) {
+    return kErrorNone;
+  }
+
   LayerBuffer *layer_buffer = &layer->input_buffer;
   private_handle_t *handle = const_cast<private_handle_t *>(pvt_handle);
 
