@@ -5,9 +5,13 @@ cc_library_shared {
         "display_headers",
         "qti_kernel_headers",
     ],
+    lto: {
+        thin: true,
+    },
     cflags: [
         "-Wno-unused-parameter",
         "-fexceptions",
+        "-O3",
         "-DLOG_TAG=\"SDM\"",
     ] + select(soong_config_variable("qtidisplay", "drmpp"), {
         "true": ["-DPP_DRM_ENABLE"],

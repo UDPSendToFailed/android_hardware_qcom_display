@@ -12,6 +12,7 @@ cc_library_shared {
         "-Wno-missing-field-initializers",
         "-Wno-unused-parameter",
         "-fcolor-diagnostics",
+        "-O3",
         "-DLOG_TAG=\"SDM\"",
     ] + select(soong_config_variable("qtidisplay", "target_kernel_version"), {
         "4.14": ["-DTARGET_MIN_KERNEL_4_14"],
@@ -21,6 +22,10 @@ cc_library_shared {
         "true": ["-DFEATURE_WIDE_COLOR"],
         default: [],
     }),
+
+    lto: {
+        thin: true,
+    },
 
     shared_libs: [
         "libsdmcore",

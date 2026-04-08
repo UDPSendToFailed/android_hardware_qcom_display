@@ -5,6 +5,7 @@ cc_defaults {
         "-Wconversion",
         "-Wall",
         "-Werror",
+        "-O3",
         "-DUSE_COLOR_METADATA",
     ] + select(soong_config_variable("qtidisplay", "headless"), {
         "true": ["-DTARGET_HEADLESS"],
@@ -16,6 +17,9 @@ cc_defaults {
         "libutils",
     ],
     header_libs: ["display_headers"],
+    lto: {
+        thin: true,
+    },
 }
 
 cc_library_headers {
