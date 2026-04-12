@@ -37,6 +37,7 @@
 #include "hwc_buffer_sync_handler.h"
 #include "hwc_session.h"
 #include "hwc_debugger.h"
+#include "display_config_v1.h"
 
 #define __CLASS__ "HWCSession"
 
@@ -45,11 +46,18 @@ namespace sdm {
 void HWCSession::StartServices() {
   int error = DisplayConfig::DeviceInterface::RegisterDevice(this);
   if (error) {
-  ALOGW("%s::%s: Could not register IDisplayConfig as service (%d).",
+    ALOGW("%s::%s: Could not register IDisplayConfig 2.0 as service (%d).",
           __CLASS__, __FUNCTION__, error);
-
   } else {
-    ALOGI("%s::%s: IDisplayConfig service registration completed.", __CLASS__, __FUNCTION__);
+    ALOGI("%s::%s: IDisplayConfig 2.0 service registration completed.", __CLASS__, __FUNCTION__);
+  }
+
+  error = DisplayConfigV1::RegisterService(this);
+  if (error) {
+    ALOGW("%s::%s: Could not register IDisplayConfig 1.0 as service (%d).",
+          __CLASS__, __FUNCTION__, error);
+  } else {
+    ALOGI("%s::%s: IDisplayConfig 1.0 service registration completed.", __CLASS__, __FUNCTION__);
   }
 }
 
